@@ -1,0 +1,15 @@
+<launch>
+    <param name="depth_pc_topic" value="/iris_0/realsense/depth_camera/depth/points" type="str"/>
+    <param name="map_pub_topic" value="/points_stable_inflate" type="str" />
+    <param name="process_freq" value="10.0" type="double"/>
+    <param name="inflate_filter" value="1" type="bool"/>
+
+    <!--inflate_r param : EGO_Planner=0.4~0.5; DWA_Planner=0.5~0.7-->
+    <param name="inflate_r" value="0.4" type="double"/>
+    
+    <param name="ground_filter" value="0" type="bool"/>
+    <param name="ground_threshold" value="0.1" type="double"/>
+    
+    <param name="inflate_mode" value="0" type="int" />
+    <node pkg="dyn_mapping" type="dyn_mapping_node" name="dyn_mapping" output="screen"/>
+</launch>
