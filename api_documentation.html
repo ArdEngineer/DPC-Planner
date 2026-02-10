@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAV Path Planner - API Documentation</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-secondary: #818cf8;
+            --border-color: #334155;
+            --code-bg: #0d1117;
+            --success-color: #4ade80;
+            --warning-color: #fbbf24;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.8;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 50px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5em;
+            padding-bottom: 0.3em;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        h2 {
+            font-size: 1.8em;
+            color: var(--accent-color);
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            padding-bottom: 0.3em;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h3 {
+            font-size: 1.4em;
+            color: var(--text-color);
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+        }
+        
+        h4 {
+            font-size: 1.1em;
+            color: var(--accent-secondary);
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+    
+        p {
+            margin-bottom: 1em;
+            color: var(--text-muted);
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            color: var(--accent-secondary);
+            text-decoration: underline;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1em 0;
+            border: 1px solid var(--border-color);
+        }
+        
+        code {
+            background-color: var(--code-bg);
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background-color: var(--code-bg);
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            border: 1px solid var(--border-color);
+        }
+        
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: var(--text-color);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        
+        ul, ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        
+        li {
+            margin: 0.5em 0;
+            color: var(--text-muted);
+        }
+        
+        li::marker {
+            color: var(--accent-color);
+        }
+        
+        blockquote {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            margin: 2em 0;
+        }
+        
+        strong {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin: 0 4px 8px 0;
+        }
+        
+        .badge-blue {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-color);
+        }
+        
+        .badge-orange {
+            background-color: rgba(251, 191, 36, 0.15);
+            color: var(--warning-color);
+        }
+        
+        .badge-yellow {
+            background-color: rgba(250, 204, 21, 0.15);
+            color: #facc15;
+        }
+        
+        .badge-green {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--success-color);
+        }
+
+        .badge-purple {
+            background-color: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+        }
+
+        .function-signature {
+            background-color: rgba(56, 189, 248, 0.05);
+            border-left: 3px solid var(--accent-color);
+            padding: 15px;
+            margin: 1em 0;
+            border-radius: 0 8px 8px 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .param-list {
+            margin: 0.5em 0;
+            padding-left: 1.5em;
+        }
+
+        .param-list li {
+            margin: 0.3em 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DPC-Planner - API Documentation</h1>
+        
+        <p>本文档详细给出DPC-Planner无人机路径规划器的数据结构、类定义和函数API</p>
+
+        <p>疑问请联系 Email : ChineseUserChen@163.com</p>
+
+        <p>联系地址：中国 陕西省西安市 西北工业大学 飞行器智能认知与控制国防科学技术重点实验室</p>
+
+        <h2>目录</h2>
+        <ol>
+            <li><a href="#global-defs">全局定义</a></li>
+            <li><a href="#maputils">MapUtils 类</a></li>
+            <li><a href="#astar">AStarSearch 类</a></li>
+            <li><a href="#trajopt">TrajOptimizer 类</a></li>
+            <li><a href="#planner">Planner 类</a></li>
+            <li><a href="#structs">辅助结构体</a></li>
+        </ol>
+
+        <h2 id="global-defs">全局定义</h2>
+
+        <h3>颜色宏定义 (common_utils.h)</h3>
+        <pre><code>// 前景色
+#define RESET   "\033[0m"
+#define BLACK   "\033[30m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define MAGENTA "\033[35m"
+#define CYAN    "\033[36m"
+#define WHITE   "\033[37m"
+#define BOLD    "\033[1m"
+
+// 背景色
+#define BG_BLACK        "\033[40m"
+#define BG_RED          "\033[41m"
+#define BG_GREEN        "\033[42m"
+#define BG_YELLOW       "\033[43m"
+#define BG_BLUE         "\033[44m"
+#define BG_WHITE        "\033[47m"</code></pre>
+        
+        <p><strong>用途</strong>：终端日志输出颜色控制</p>
+
+        <h2 id="maputils">MapUtils 类</h2>
+
+        <h3>类定义</h3>
+        <pre><code>class MapUtils {
+public:
+    OctoTreePtr map;                    // OctoMap智能指针
+    double map_z_min, map_z_max;        // Z轴边界限制
+    double map_r;                       // 地图有效半径
+    double FOV_angle, FOV_depth;        // 视场角和深度
+    double resolution;                  // 地图分辨率
+    double pro_hit, pro_miss;           // 概率更新参数
+    double clamping_thresmin, clamping_thresmax;  // 概率裁剪阈值
+    ros::Publisher octomap_pub;         // 地图发布器
+
+    // 成员函数...
+};</code></pre>
+
+        <h3>成员函数</h3>
+
+        <h4>InitMapUtils</h4>
+        <div class="function-signature">
+            void InitMapUtils(<br>
+            &nbsp;&nbsp;double _map_z_min,          // Z轴最小高度<br>
+            &nbsp;&nbsp;double _map_z_max,          // Z轴最大高度<br>
+            &nbsp;&nbsp;double _map_r,              // 地图有效半径<br>
+            &nbsp;&nbsp;double _resolution,         // 地图分辨率<br>
+            &nbsp;&nbsp;double _pro_hit,            // 命中概率<br>
+            &nbsp;&nbsp;double _pro_miss,           // 未命中概率<br>
+            &nbsp;&nbsp;double _clamping_thresmin,  // 最小概率阈值<br>
+            &nbsp;&nbsp;double _clamping_thresmax,  // 最大概率阈值<br>
+            &nbsp;&nbsp;double _FOV_angle,          // 视场角度<br>
+            &nbsp;&nbsp;double _FOV_depth,          // 视场深度<br>
+            &nbsp;&nbsp;ros::NodeHandle& nh         // ROS节点句柄<br>
+            );
+        </div>
+        <p><strong>功能</strong>：初始化地图工具类</p>
+        <p><strong>调用时机</strong>：Planner初始化时</p>
+
+        <h4>InsertNewMap</h4>
+        <div class="function-signature">
+            bool InsertNewMap(const sensor_msgs::PointCloud2::ConstPtr& msg);
+        </div>
+        <p><strong>功能</strong>：接收点云数据并更新OctoMap</p>
+        <p><strong>参数</strong>：</p>
+        <ul class="param-list">
+            <li><code>msg</code> - PointCloud2格式的点云数据</li>
+        </ul>
+        <p><strong>返回值</strong>：</p>
+        <ul class="param-list">
+            <li><code>true</code> - 更新成功</li>
+            <li><code>false</code> - 更新失败（空数据或转换错误）</li>
+        </ul>
+        <p><strong>处理流程</strong>：</p>
+        <ol>
+            <li>将ROS PointCloud2转换为PCL点云</li>
+            <li>将PCL点云转换为OctoMap点云格式</li>
+            <li>以map帧原点为传感器位姿插入点云</li>
+            <li>执行地图剪枝优化</li>
+            <li>发布可视化地图</li>
+        </ol>
+
+        <h4>OutOfMap</h4>
+        <div class="function-signature">
+            bool OutOfMap(Eigen::Vector3d const& p, Eigen::Vector3d const& cur_pos);
+        </div>
+        <p><strong>功能</strong>：检查点是否超出地图有效范围</p>
+        <p><strong>参数</strong>：</p>
+        <ul class="param-list">
+            <li><code>p</code> - 待检查的点</li>
+            <li><code>cur_pos</code> - 当前位置（用于计算相对距离）</li>
+        </ul>
+        <p><strong>返回值</strong>：</p>
+        <ul class="param-list">
+            <li><code>true</code> - 点在地图外</li>
+            <li><code>false</code> - 点在地图内</li>
+        </ul>
+        <p><strong>判断条件</strong>：</p>
+        <ul>
+            <li>Z坐标超出 <code>[map_z_min, map_z_max]</code> 范围</li>
+            <li>与当前位置距离超过 <code>map_r</code></li>
+        </ul>
+
+        <h4>HitObstacles</h4>
+        <div class="function-signature">
+            bool HitObstacles(Eigen::Vector3d const& p);
+        </div>
+        <p><strong>功能</strong>：检查点是否与障碍物碰撞</p>
+        <p><strong>参数</strong>：</p>
+        <ul class="param-list">
+            <li><code>p</code> - 待检查的点（3D坐标）</li>
+        </ul>
+        <p><strong>返回值</strong>：</p>
+        <ul class="param-list">
+            <li><code>true</code> - 点被占据（碰撞）</li>
+            <li><code>false</code> - 点空闲或未知</li>
+        </ul>
+        <p><strong>实现细节</strong>：</p>
+        <ul>
+            <li>使用OctoMap的 <code>search()</code> 查询节点</li>
+            <li>通过 <code>isNodeOccupied()</code> 判断占用状态</li>
+        </ul>
+
+        <h4>map_visual</h4>
+        <div class="function-signature">
+            bool map_visual();
+        </div>
+        <p><strong>功能</strong>：发布OctoMap可视化消息</p>
+        <p><strong>返回值</strong>：始终返回 <code>true</code></p>
+
+        <h2 id="astar">AStarSearch 类</h2>
+
+        <h3>类定义</h3>
+        <pre><code>class AStarSearch {
+public:
+    int search_mode;            // 搜索模式 (2=2D, 3=3D)
+    double step_size;           // 搜索步长
+    int max_iter;               // 最大迭代次数
+    double max_time;            // 最大搜索时间
+    double reached_threshold;   // 到达判断阈值
+    double hfunc_factor;        // 启发函数因子
+    std::vector&lt;Eigen::Vector3d&gt; action_space;  // 动作空间
+
+    // 成员函数...
+};</code></pre>
+
+        <h3>辅助结构体</h3>
+
+        <h4>Node</h4>
+        <pre><code>struct Node {
+    Eigen::Vector3d parent_coord;   // 父节点坐标
+    Eigen::Vector3d coordinate;     // 当前节点坐标
+    double g;                       // 从起点到当前节点的代价
+
+    bool operator&lt;(const Node& other) const {
+        return g > other.g;  // 用于小顶堆
+    }
+};</code></pre>
+
+        <h4>Vec3Hash</h4>
+        <pre><code>struct Vec3Hash {
+    std::size_t operator()(const Eigen::Vector3d& v) const {
+        int x = std::round(v.x() * 1000.0);
+        int y = std::round(v.y() * 1000.0);
+        int z = std::round(v.z() * 1000.0);
+        return ((size_t)x << 42) ^ ((size_t)y << 21) ^ (size_t)z;
+    }
+};</code></pre>
+        <p><strong>用途</strong>：Eigen::Vector3d的哈希函数，用于unordered_set/map</p>
+
+        <h3>成员函数</h3>
+
+        <h4>init_searcher</h4>
+        <div class="function-signature">
+            void init_searcher(<br>
+            &nbsp;&nbsp;int set_search_mode,        // 搜索模式<br>
+            &nbsp;&nbsp;double set_step_size,       // 步长<br>
+            &nbsp;&nbsp;int set_max_iter,           // 最大迭代<br>
+            &nbsp;&nbsp;double set_max_time,        // 最大时间<br>
+            &nbsp;&nbsp;double set_reached_threshold,  // 到达阈值<br>
+            &nbsp;&nbsp;double set_hfunc_factor     // 启发函数因子<br>
+            );
+        </div>
+        <p><strong>功能</strong>：初始化A*搜索器参数和动作空间</p>
+        <p><strong>动作空间构建</strong>：</p>
+        <ul>
+            <li><strong>2D模式</strong>：8个方向（水平面）
+                <pre><code>( 1,  0,  0), (-1,  0,  0), ( 0,  1,  0), ( 0, -1,  0)
+( 1,  1,  0), ( 1, -1,  0), (-1,  1,  0), (-1, -1,  0)</code></pre>
+            </li>
+            <li><strong>3D模式</strong>：26个方向（全空间）
+                <ul>
+                    <li>包含2D的8个方向</li>
+                    <li>额外18个垂直方向组合</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h4>path_search</h4>
+        <div class="function-signature">
+            void path_search(<br>
+            &nbsp;&nbsp;MapUtils* map_utils,                                    // 地图工具指针<br>
+            &nbsp;&nbsp;std::vector&lt;Eigen::Vector3d&gt;& gd_path,                 // 引导路径<br>
+            &nbsp;&nbsp;std::vector&lt;std::pair&lt;size_t, size_t&gt;&gt;& cs_ids,        // 碰撞段索引<br>
+            &nbsp;&nbsp;std::vector&lt;std::vector&lt;Eigen::Vector3d&gt;&gt;& csfgs,      // 输出：无碰撞路径段<br>
+            &nbsp;&nbsp;Eigen::Vector3d const& cur_pos                         // 当前位置<br>
+            );
+        </div>
+        <p><strong>功能</strong>：对引导路径中的碰撞段执行A*搜索</p>
+        <p><strong>算法流程</strong>：</p>
+        <ol>
+            <li>遍历每个碰撞段 <code>(start_id, end_id)</code></li>
+            <li>对每个碰撞段执行独立A*搜索</li>
+            <li>使用优先队列（小顶堆）管理OpenList</li>
+            <li>扩展邻居节点（根据search_mode选择8或26邻域）</li>
+            <li>碰撞检测和边界检查</li>
+            <li>回溯路径并存储结果</li>
+        </ol>
+        <p><strong>终止条件</strong>：</p>
+        <ul>
+            <li>到达目标（距离 < step_size/2）</li>
+            <li>超过最大迭代次数</li>
+            <li>超过最大搜索时间</li>
+            <li>OpenList为空（搜索失败）</li>
+        </ul>
+
+        <h2 id="trajopt">TrajOptimizer 类</h2>
+
+        <h3>类定义</h3>
+        <pre><code>class TrajOptimizer {
+public:
+    // 优化参数
+    double dt;                  // 时间步长
+    double sf;                  // 安全距离
+    double lambda_s;            // 平滑性权重
+    double lambda_d;            // 动态约束权重
+    double lambda_c;            // 碰撞惩罚权重
+    double cj, cmv, cma, cmj;   // 约束边界参数
+    double lamda;               // 惩罚函数参数
+    double omega_v, omega_a, omega_j;  // 速度/加速度/Jerk权重
+    double xtol_rel;            // 优化容差
+    int maxeval;                // 最大评估次数
+    int num_of_control_points;  // 控制点数量
+    int bspline_order;          // B样条阶数
+    double average_v;           // 平均速度
+
+    // 优化内容缓存
+    std::vector&lt;std::pair&lt;Eigen::Vector3d, std::pair&lt;Eigen::Vector3d, Eigen::Vector3d&gt;&gt;&gt; optimize_content_;
+
+    // 成员函数...
+};</code></pre>
+
+        <h3>成员函数</h3>
+
+        <h4>set_optimizer_params</h4>
+        <div class="function-signature">
+            void set_optimizer_params(PublicParams const& params);
+        </div>
+        <p><strong>功能</strong>：从PublicParams加载优化器参数</p>
+
+        <h4>solve_optimize</h4>
+        <div class="function-signature">
+            void solve_optimize(<br>
+            &nbsp;&nbsp;std::vector&lt;std::pair&lt;Eigen::Vector3d, std::pair&lt;Eigen::Vector3d, Eigen::Vector3d&gt;&gt;&gt;& opt_content,<br>
+            &nbsp;&nbsp;std::vector&lt;Eigen::Vector3d&gt;& opt_res<br>
+            );
+        </div>
+        <p><strong>功能</strong>：求解轨迹优化问题</p>
+        <p><strong>参数</strong>：</p>
+        <ul class="param-list">
+            <li><code>opt_content</code> - 优化内容，每个元素为 <code>(控制点, (投影点, 方向向量))</code></li>
+            <li><code>opt_res</code> - 输出：优化后的轨迹采样点</li>
+        </ul>
+        <p><strong>优化流程</strong>：</p>
+        <ol>
+            <li>缓存优化内容供回调使用</li>
+            <li>提取内部控制点（跳过首尾固定点）</li>
+            <li>使用NLOpt的LD_LBFGS算法优化</li>
+            <li>构建完整控制点序列</li>
+            <li>生成B样条并均匀采样</li>
+        </ol>
+
+        <h4>penalty_function_jc</h4>
+        <div class="function-signature">
+            double penalty_function_jc(<br>
+            &nbsp;&nbsp;const std::vector&lt;Eigen::Vector3d&gt;& control_points,<br>
+            &nbsp;&nbsp;const std::vector&lt;std::pair&lt;Eigen::Vector3d, std::pair&lt;Eigen::Vector3d, Eigen::Vector3d&gt;&gt;&gt;& opt_content<br>
+            );
+        </div>
+        <p><strong>功能</strong>：计算碰撞惩罚项</p>
+        <p><strong>惩罚函数定义</strong>：</p>
+        <pre><code>c_ij = sf - d_ij  (d_ij = (p - ctrl_pt)·v)
+
+Jc = Σ {
+    0,                          if c_ij <= 0
+    c_ij³,                      if 0 < c_ij <= sf
+    3·sf·c_ij² - 3·sf²·c_ij + sf³,  if c_ij > sf
+}</code></pre>
+
+        <h4>penalty_function_jd</h4>
+        <div class="function-signature">
+            double penalty_function_jd(const std::vector&lt;Eigen::Vector3d&gt;& control_points);
+        </div>
+        <p><strong>功能</strong>：计算动态约束惩罚项</p>
+        <p><strong>组成</strong>：</p>
+        <ul>
+            <li>速度惩罚：fv = Σ f(v_i, cj, cmv, lamda)</li>
+            <li>加速度惩罚：fa = Σ f(a_i, cj, cma, lamda)</li>
+            <li>Jerk惩罚：fj = Σ f(j_i, cj, cmj, lamda)</li>
+        </ul>
+        <p><strong>返回值</strong>：<code>omega_v * fv + omega_a * fa + omega_j * fj</code></p>
+
+        <h4>penalty_function_js</h4>
+        <div class="function-signature">
+            double penalty_function_js(const std::vector&lt;Eigen::Vector3d&gt;& control_points);
+        </div>
+        <p><strong>功能</strong>：计算平滑性惩罚项</p>
+        <p><strong>组成</strong>：</p>
+        <ul>
+            <li>加速度平方和</li>
+            <li>Jerk平方和</li>
+        </ul>
+
+        <h4>object_function</h4>
+        <div class="function-signature">
+            double object_function(const std::vector&lt;Eigen::Vector3d&gt;& control_points);
+        </div>
+        <p><strong>功能</strong>：计算总目标函数值</p>
+        <p><strong>公式</strong>：</p>
+        <pre><code>J = lambda_s * Js + lambda_c * Jc + lambda_d * Jd</code></pre>
+
+        <h4>bspline_optimize</h4>
+        <div class="function-signature">
+            std::vector&lt;Eigen::Vector3d&gt; bspline_optimize(const std::vector&lt;Eigen::Vector3d&gt;& control_points);
+        </div>
+        <p><strong>功能</strong>：使用B样条插值生成平滑轨迹</p>
+        <p><strong>参数</strong>：</p>
+        <ul class="param-list">
+            <li><code>control_points</code> - 控制点序列</li>
+        </ul>
+        <p><strong>返回值</strong>：均匀采样的轨迹点</p>
+        <p><strong>实现细节</strong>：</p>
+        <ol>
+            <li>计算轨迹长度和总时间</li>
+            <li>确定采样点数</li>
+            <li>构建clamped节点向量</li>
+            <li>使用Cox-de Boor公式计算基函数</li>
+            <li>均匀采样输出轨迹点</li>
+        </ol>
+
+        <h2 id="planner">Planner 类</h2>
+
+        <h3>类定义</h3>
+        <pre><code>class Planner {
+public:
+    // 地图容器
+    MapUtils* map_utils;
+
+    // 状态标志
+    Flags fs;
+
+    // 公共参数
+    PublicParams pp;
+
+    // 位置信息
+    Eigen::Vector3d start_p, goal, cur_pos, tmp_goal;
+    Eigen::Vector3d start_v, start_a;
+
+    // 辅助插件
+    AStarSearch* astar;
+    TrajOptimizer* optimizer;
+
+    // 规划数据
+    std::vector&lt;Eigen::Vector3d&gt; guidance_path;      // 引导路径
+    std::vector&lt;Eigen::Vector3d&gt; control_points;     // 控制点
+    std::vector&lt;geometry_msgs::Point&gt; bspline_points; // B样条点
+    std::vector&lt;std::pair&lt;size_t, size_t&gt;&gt; collision_segs;  // 碰撞段
+    std::vector&lt;std::vector&lt;Eigen::Vector3d&gt;&gt; collision_free_segs;  // 无碰撞段
+
+    // 优化内容
+    std::vector&lt;std::pair&lt;Eigen::Vector3d, std::pair&lt;Eigen::Vector3d, Eigen::Vector3d&gt;&gt;&gt; optimize_content;
+
+    // ROS订阅器
+    ros::Subscriber drone_pose_sub, map_sub, set_goal_sub;
+
+    // ROS发布器
+    ros::Publisher planned_path_visual_pub;
+    ros::Publisher guidance_path_visual_pub;
+    ros::Publisher astar_path_visual_pub;
+    ros::Publisher planned_path_mission_pub;
+    ros::Publisher emergency_hover_cmd_pub;
+    ros::Publisher flight_interrupt_signal_pub;
+
+    // 成员函数...
+};</code></pre>
+
+        <h3>Flags 结构体</h3>
+        <pre><code>class Flags {
+public:
+    bool receive_new_goal;      // 接收到新目标
+    bool receive_new_map;       // 接收到新地图
+    bool update_tmp_goal;       // 更新临时目标
+    bool exec_optimize;         // 执行优化
+    bool map_buf_lock;          // 地图缓冲区锁
+    bool goal_empty;            // 目标为空
+    bool reached_goal;          // 到达目标
+    bool update_mission_points; // 更新任务点
+    bool tpg_hit_g;             // 临时目标首次到达最终目标
+    char plan_state;            // 1=首次规划, 0=重规划
+    std_msgs::Char interrupt_signal;  // 中断信号
+};</code></pre>
+
+        <h3>成员函数</h3>
+
+        <h4>init_planner</h4>
+        <div class="function-signature">
+            void init_planner(<br>
+            &nbsp;&nbsp;PublicParams const& pparams,    // 公共参数<br>
+            &nbsp;&nbsp;PlannerTopic const& topics,     // 话题配置<br>
+            &nbsp;&nbsp;ros::NodeHandle& nh             // 节点句柄<br>
+            );
+        </div>
+        <p><strong>功能</strong>：初始化规划器</p>
+        <p><strong>初始化流程</strong>：</p>
+        <ol>
+            <li>订阅ROS话题（目标、位姿、地图）</li>
+            <li>创建ROS发布器</li>
+            <li>复制公共参数</li>
+            <li>初始化状态标志</li>
+            <li>创建MapUtils实例</li>
+            <li>创建TrajOptimizer实例</li>
+            <li>创建AStarSearch实例</li>
+        </ol>
+
+        <h4>回调函数</h4>
+
+        <h5>set_goal_callback</h5>
+        <div class="function-signature">
+            void set_goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg);
+        </div>
+        <p><strong>功能</strong>：接收目标点</p>
+        <p><strong>处理</strong>：提取位置坐标，保持当前高度，设置 <code>receive_new_goal</code> 标志</p>
+
+        <h5>drone_pose_callback</h5>
+        <div class="function-signature">
+            void drone_pose_callback(const geometry_msgs::PoseStamped::ConstPtr& msg);
+        </div>
+        <p><strong>功能</strong>：接收无人机位姿</p>
+        <p><strong>处理</strong>：更新当前位置，检查是否到达目标</p>
+
+        <h5>map_callback</h5>
+        <div class="function-signature">
+            void map_callback(const sensor_msgs::PointCloud2::ConstPtr& msg);
+        </div>
+        <p><strong>功能</strong>：接收地图点云</p>
+        <p><strong>处理</strong>：调用MapUtils更新地图，设置 <code>receive_new_map</code> 标志</p>
+
+        <h4>核心规划函数</h4>
+
+        <h5>generate_guidance_path</h5>
+        <div class="function-signature">
+            void generate_guidance_path(int mode);
+        </div>
+        <p><strong>功能</strong>：生成引导路径</p>
+        <p><strong>模式</strong>：</p>
+        <ul>
+            <li><code>mode=0</code>：五次多项式路径（平滑曲线）</li>
+            <li><code>mode=1</code>：直线路径（均匀采样）</li>
+        </ul>
+        <p><strong>多项式路径生成</strong>：</p>
+        <ol>
+            <li>计算规划时间 <code>T</code></li>
+            <li>构建边界条件矩阵</li>
+            <li>求解多项式系数</li>
+            <li>自适应时间步长采样</li>
+        </ol>
+
+        <h5>check_collision</h5>
+        <div class="function-signature">
+            void check_collision();
+        </div>
+        <p><strong>功能</strong>：检测引导路径中的碰撞段</p>
+        <p><strong>算法</strong>：</p>
+        <ul>
+            <li>遍历路径点</li>
+            <li>检测从空闲到占据的转换（碰撞开始）</li>
+            <li>检测从占据到空闲的转换（碰撞结束）</li>
+            <li>记录碰撞段索引对 <code>(start_id, end_id)</code></li>
+        </ul>
+
+        <h5>find_collision_free_path</h5>
+        <div class="function-signature">
+            void find_collision_free_path();
+        </div>
+        <p><strong>功能</strong>：调用A*搜索生成无碰撞路径段</p>
+
+        <h5>construct_optimize_content</h5>
+        <div class="function-signature">
+            void construct_optimize_content();
+        </div>
+        <p><strong>功能</strong>：构造优化问题内容</p>
+        <p><strong>处理逻辑</strong>：</p>
+        <ul>
+            <li>无碰撞段：控制点 + 零向量</li>
+            <li>碰撞段：控制点 + (投影点, 方向向量)</li>
+            <li>投影点计算：在A*路径上找到距离控制点最近的点</li>
+        </ul>
+
+        <h5>path_optimize</h5>
+        <div class="function-signature">
+            void path_optimize();
+        </div>
+        <p><strong>功能</strong>：执行轨迹优化</p>
+        <p><strong>流程</strong>：</p>
+        <ol>
+            <li>调用优化器求解</li>
+            <li>转换结果为ROS消息格式</li>
+            <li>发布可视化</li>
+        </ol>
+
+        <h4>状态管理函数</h4>
+
+        <h5>check_mission_state</h5>
+        <div class="function-signature">
+            bool check_mission_state();
+        </div>
+        <p><strong>功能</strong>：检查任务状态，判断是否需要重规划</p>
+        <p><strong>返回值</strong>：</p>
+        <ul class="param-list">
+            <li><code>true</code> - 需要更新临时目标</li>
+            <li><code>false</code> - 继续当前任务</li>
+        </ul>
+        <p><strong>判断条件</strong>：</p>
+        <ul>
+            <li>临时目标与当前位置距离 < <code>replan_threshold_dist</code></li>
+            <li>且临时目标尚未到达最终目标</li>
+        </ul>
+
+        <h5>reset</h5>
+        <div class="function-signature">
+            void reset(int state);
+        </div>
+        <p><strong>功能</strong>：重置规划器状态</p>
+        <p><strong>状态</strong>：</p>
+        <ul>
+            <li><code>state=0</code>：到达目标重置</li>
+            <li><code>state=1</code>：新目标重置</li>
+        </ul>
+
+        <h4>可视化函数</h4>
+
+        <h5>visualize_guidance_path</h5>
+        <div class="function-signature">
+            void visualize_guidance_path();
+        </div>
+        <p><strong>发布</strong>：<code>/visualized_guidance_path</code>（黑色线+点）</p>
+
+        <h5>visualize_searched_path</h5>
+        <div class="function-signature">
+            void visualize_searched_path();
+        </div>
+        <p><strong>发布</strong>：<code>/visualized_astar_path</code>（红色线+点）</p>
+
+        <h5>visualize_planning_path</h5>
+        <div class="function-signature">
+            void visualize_planning_path();
+        </div>
+        <p><strong>发布</strong>：<code>/visualized_planning_path</code>（蓝色线）</p>
+
+        <h2 id="structs">辅助结构体</h2>
+
+        <h3>PublicParams (common_utils.h)</h3>
+        <pre><code>class PublicParams {
+public:
+    // 基本参数
+    bool test_mode;
+    double planner_freq;
+    double reached_threshold;
+
+    // 引导路径模式
+    int gd_path_mode;
+
+    // 多项式参数
+    double ts, dec_ts, max_v, sample_max_ds;
+
+    // 传感器参数
+    int sensor_type;
+    double FOV_ANGLE, FOV_DEPTH;
+    double map_resolution;
+    double pro_hit, pro_miss;
+    double clamping_thresmin, clamping_thresmax;
+    double map_z_min, map_z_max, map_r;
+
+    // 运动参数
+    double theta_v_max, delta_theta;
+    double plan_len, average_v;
+    double replan_threshold_dist, spline_sampling_ds;
+
+    // A*参数
+    int astar_search_mode;
+    double astar_step_size, astar_max_iter;
+    double astar_reached_threshold, astar_max_time, astar_hfunc_factor;
+
+    // 优化器参数
+    double dt, sf, lambda_s, lambda_d, lambda_c;
+    double cj, cmv, cma, cmj, lamda;
+    double omega_v, omega_a, omega_j;
+    double xtol_rel;
+    int maxeval;
+
+    // B样条参数
+    int num_of_control_points, bspline_order;
+};</code></pre>
+
+        <h3>PlannerTopic (planner_utils.h)</h3>
+        <pre><code>class PlannerTopic {
+public:
+    std::string drone_pose_topic;
+    std::string set_goal_topic;
+    std::string map_topic;
+    std::string planned_path_visual_topic;
+    std::string guidance_path_visual_topic;
+    std::string astar_path_visual_topic;
+    std::string planned_path_mission_topic;
+    std::string flight  我将完成API文档的剩余部分：
+
+```html
+    interrupt_signal_topic;
+    std::string goal_receive_feedback_topic;
+    std::string emergency_hover_cmd_topic;
+};</code></pre>
+
+        <h2>主节点流程 (planner_node.cpp)</h2>
+
+        <h3>主循环逻辑</h3>
+        <pre><code>while (ros::ok()) {
+    if (receive_new_goal) {
+        // 重置规划器
+        reset(1);
+    }
+    
+    if (!goal_empty) {
+        if (!reached_goal) {
+            if (receive_new_map) {
+                if (plan_state == 1) {
+                    // 首次规划
+                    generate_guidance_path();
+                } else {
+                    // 重规划
+                    set_replan_start();
+                    if (need_update_tmp_goal) {
+                        generate_guidance_path();
+                    }
+                }
+                
+                check_collision();
+                
+                if (has_collision || first_plan || update_tmp_goal) {
+                    find_collision_free_path();
+                    construct_optimize_content();
+                    path_optimize();
+                    publish_mission_points();
+                }
+                
+                update_guidance_path();
+                
+                plan_state = 0;  // 切换到重规划模式
+            }
+        } else {
+            // 到达目标
+            publish_interrupt_signal();
+            reset(0);
+        }
+    }
+    
+    rate.sleep();
+}</code></pre>
+
+        <h2>ROS功能包文件结构</h2>
+        <pre><code>planner_manage/
+├── include/
+│   ├── common_utils.h      # 公共定义和参数
+│   ├── map_utils.h         # 地图工具类
+│   ├── dyn_a_star.h        # A*搜索类
+│   ├── traj_optimizer.h    # 轨迹优化类
+│   └── planner_utils.h     # 规划器核心类
+├── src/
+│   ├── map_utils.cpp       # MapUtils实现
+│   ├── dyn_a_star.cpp      # AStarSearch实现
+│   ├── traj_optimizer.cpp  # TrajOptimizer实现
+│   ├── planner_utils.cpp   # Planner实现
+│   └── planner_node.cpp    # 主节点
+├── launch/
+│   └── planner.launch      # 启动配置
+├── CMakeLists.txt          # 编译配置
+└── package.xml             # 包配置</code></pre>
+
+        <h2>依赖关系图</h2>
+        <pre><code>planner_node.cpp
+    ├── planner_utils.h
+    │   ├── dyn_a_star.h
+    │   │   └── map_utils.h
+    │   ├── map_utils.h
+    │   │   └── common_utils.h
+    │   ├── traj_optimizer.h
+    │   │   └── common_utils.h
+    │   └── common_utils.h
+    └── ros/ros.h</code></pre>
+    </div>
+</body>
+</html>
