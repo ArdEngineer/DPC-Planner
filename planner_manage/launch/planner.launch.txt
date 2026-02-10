@@ -1,0 +1,75 @@
+<launch>
+    <!-- 规划器基本参数 -->
+    <param name="test_mode" value="0" type="bool"/>
+    <param name="planner_freq" value="10.0" type="double"/>
+    <param name="gd_path_mode" value="1" type="int"/>
+    <param name="plan_len" value="7.0" type="double"/>  <!-- 规划段长度 -->
+    <param name="reached_threshold" value="0.4" type="double"/> <!-- 到达目标判断阈值 -->
+    <param name="spline_sampling_ds" value="0.2" type="double"/> <!-- 优化后样条路径采样参数 -->
+    
+    <!-- 订阅的话题 -->
+    <param name="drone_pose_topic" value="/iris_0/mavros/vision_pose/pose" type="str"/>
+    <param name="set_goal_topic" value="/goal" type="str"/>
+    <param name="map_topic" value="/points_stable_inflate" type="str"/>
+    
+    <!-- 发布的话题 -->
+    <param name="planned_path_visual_topic" value="/visualized_planning_path" type="str"/>
+    <param name="guidance_path_visual_topic" value="/visualized_guidance_path" type="str"/>
+    <param name="astar_path_visual_topic" value="/visualized_astar_path" type="str"/>
+    <param name="planned_path_mission_topic" value="/mission_planning_path" type="str"/>
+    <param name="flight_interrupt_signal_topic" value="/interpret_signal" type="str"/>
+    <param name="goal_receive_feedback_topic" value="/set_goal_receive" type="str"/>
+
+    <!-- 优化器参数 -->
+    <param name="dt" value="0.2" type="double"/>
+    <param name="sf" value="0.8" type="double"/>
+    <param name="lambda_s" value="1.0" type="double"/>
+    <param name="lambda_d" value="2.0" type="double"/>
+    <param name="lambda_c" value="80.0" type="double"/>
+    <param name="cj" value="10.0" type="double"/>
+    <param name="cmv" value="2.0" type="double"/>
+    <param name="cma" value="3.0" type="double"/>
+    <param name="cmj" value="4.0" type="double"/>
+    <param name="lamda" value="0.995" type="double"/>
+    <param name="omega_v" value="1.0" type="double"/>
+    <param name="omega_a" value="1.0" type="double"/>
+    <param name="omega_j" value="1.0" type="double"/>
+    <param name="num_of_control_points" value="50" type="int"/>
+    <param name="bspline_order" value="3" type="int"/>
+    <param name="opt_xtol_rel" value="1e-6" type="double"/>  <!-- 优化器优化容差 -->
+    <param name="opt_maxeval" value="50" type="int"/>  <!-- 优化器最大迭代次数 -->
+
+    <!-- 多项式引导路径生成控制参数 -->
+    <param name="ts" value="1.2" type="double"/>
+    <param name="dec_ts" value="1.5" type="double"/>
+    <param name="max_v" value="2.5" type="double"/>
+    <param name="sample_max_ds" value="0.2" type="double"/>
+
+    <!-- A*搜索参数 -->
+    <param name="astar_search_mode" value="2" type="int"/>  <!-- A*搜索维度 -->
+    <param name="astar_step_size" value="0.1" type="double"/>  <!-- A*步长 -->
+    <param name="astar_max_iter" value="5000" type="int"/>  <!-- A*最大搜索次数 -->
+    <param name="astar_max_time" value="0.2" type="double"/>  <!-- A*最大搜索时间[s] -->
+    <param name="astar_hfunc_factor" value="10.0" type="double"/>  <!-- A*启发函数h规模因子 -->
+    <param name="astar_reached_threshold" value="0.1" type="double"/>  <!-- A*到达判断阈值 -->
+
+    <!-- 无人机运动参数 -->
+    <param name="average_v" value="1.0" type="double"/>  <!-- 平均速度 -->
+    <param name="replan_threshold_dist" value="3.5" type="double"/>  <!-- 重规划阈值 -->
+
+    <!-- 传感器与地图参数 -->
+    <param name="map_z_min" value="0.1" type="double"/>
+    <param name="map_z_max" value="5.0" type="double"/>
+    <param name="map_r" value="20.0" type="double"/>
+    <param name="sensor_type" value="0" type="int"/>  <!-- 传感器类型：0=深度相机 1=激光雷达 -->
+    <param name="FOV_ANGLE" value="60.0" type="double"/>  <!-- FOV角度（约70度） -->
+    <param name="FOV_DEPTH" value="7.0" type="double"/>  <!-- FOV深度 -->
+    <param name="map_resolution" value="0.1" type="double"/>  <!-- 地图分辨率 -->
+    <param name="pro_hit" value="0.7" type="double"/> <!-- 点云命中时，栅格占用概率增加量 -->
+    <param name="pro_miss" value="0.4" type="double"/> <!-- 点云未命中时，栅格占用概率减少量 -->
+    <param name="clamping_thresmin" value="0.12" type="double"/> <!-- 最小占用概率 -->
+    <param name="clamping_thresmax" value="0.97" type="double"/> <!-- 最大占用概率 -->
+    <param name="theta_v_max" value="60.0" type="double"/>  <!-- 最大垂直方向搜索角 -->
+    <param name="delta_theta" value="10.0" type="double"/>  <!-- 角度搜索增量 -->
+    <node pkg="planner_manage" type="planner_node" name="planner" output="screen"></node>
+</launch>
