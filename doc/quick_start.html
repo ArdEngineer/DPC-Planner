@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPC-Planner 自主无人机路径规划器</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-secondary: #818cf8;
+            --border-color: #334155;
+            --code-bg: #0d1117;
+            --success-color: #4ade80;
+            --warning-color: #fbbf24;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.8;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 50px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5em;
+            padding-bottom: 0.3em;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        h2 {
+            font-size: 1.8em;
+            color: var(--accent-color);
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            padding-bottom: 0.3em;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h3 {
+            font-size: 1.4em;
+            color: var(--text-color);
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+        }
+        
+        h4 {
+            font-size: 1.1em;
+            color: var(--accent-secondary);
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+    
+        p {
+            margin-bottom: 1em;
+            color: var(--text-muted);
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        a:hover {
+            color: var(--accent-secondary);
+            text-decoration: underline;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1em 0;
+            border: 1px solid var(--border-color);
+        }
+        
+        code {
+            background-color: var(--code-bg);
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background-color: var(--code-bg);
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            border: 1px solid var(--border-color);
+        }
+        
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: var(--text-color);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        
+        ul, ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        
+        li {
+            margin: 0.5em 0;
+            color: var(--text-muted);
+        }
+        
+        li::marker {
+            color: var(--accent-color);
+        }
+        
+        blockquote {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 20px;
+            margin: 1.5em 0;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            margin: 2em 0;
+        }
+        
+        strong {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin: 0 4px 8px 0;
+        }
+        
+        .badge-blue {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-color);
+        }
+        
+        .badge-orange {
+            background-color: rgba(251, 191, 36, 0.15);
+            color: var(--warning-color);
+        }
+        
+        .badge-yellow {
+            background-color: rgba(250, 204, 21, 0.15);
+            color: #facc15;
+        }
+        
+        .badge-green {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--success-color);
+        }
+
+        .badge-purple {
+            background-color: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+        <a href="index.html" style="color: var(--accent-color); text-decoration: none; font-weight: 500;">
+            ← 返回首页
+        </a>
+    </div>
+    <div class="container">
+        <h1>DPC-Planner 自主无人机路径规划器</h1>
+        
+        <p>
+            <span class="badge badge-blue">ROS Melodic/Noetic</span>
+            <span class="badge badge-orange">C++ 11/14</span>
+            <span class="badge badge-green">MIT License</span>
+        </p>
+
+        <p>一个基于ROS的无人机实时路径规划器，<strong>不依赖ESDF地图</strong>，支持快速实时重规划。</p>
+
+        <h2>目录</h2>
+        <ul>
+            <li><a href="#features">功能特性</a></li>
+            <li><a href="#architecture">系统架构</a></li>
+            <li><a href="#installation">安装指南</a></li>
+            <li><a href="#quickstart">快速开始</a></li>
+            <li><a href="#parameters">参数配置</a></li>
+            <li><a href="#ros-interface">ROS接口</a></li>
+            <li><a href="#visualization">可视化</a></li>
+            <li><a href="#performance">性能指标</a></li>
+            <li><a href="#faq">常见问题</a></li>
+        </ul>
+
+        <h2 id="features">功能特性</h2>
+        
+        <h3>核心功能</h3>
+        <ul>
+            <li><strong>实时3D路径规划</strong>：基于OctoMap构建三维占据地图</li>
+            <li><strong>混合规划策略</strong>：前端A*搜索 + 后端B样条轨迹优化</li>
+            <li><strong>动态重规划</strong>：支持飞行过程中的实时重规划</li>
+            <li><strong>碰撞检测</strong>：基于八叉树的高效碰撞检测</li>
+            <li><strong>轨迹平滑</strong>：使用NLOpt优化器生成平滑的B样条轨迹</li>
+        </ul>
+
+        <h3>技术特点</h3>
+        <ul>
+            <li><strong>多维度搜索</strong>：支持2D（8邻域）和3D（26邻域）A*搜索模式</li>
+            <li><strong>安全机制</strong>：自动寻找安全临时目标点</li>
+            <li><strong>轨迹约束</strong>：考虑速度、加速度、Jerk约束</li>
+            <li><strong>可视化支持</strong>：完整的RViz可视化接口</li>
+        </ul>
+
+        <h2 id="architecture">系统架构</h2>
+
+        <h3>核心模块</h3>
+
+        <h4>1. MapUtils (map_utils.h/cpp)</h4>
+        <ul>
+            <li><strong>功能</strong>：基于OctoMap的三维环境地图管理</li>
+            <li><strong>主要职责</strong>：
+                <ul>
+                    <li>点云数据接收与处理</li>
+                    <li>占据栅格地图更新</li>
+                    <li>碰撞检测与边界检查</li>
+                    <li>地图可视化发布</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h4>2. AStarSearch (dyn_a_star.h/cpp)</h4>
+        <ul>
+            <li><strong>功能</strong>：动态A*路径搜索算法</li>
+            <li><strong>搜索模式</strong>：
+                <ul>
+                    <li>2D模式：8邻域搜索（水平面）</li>
+                    <li>3D模式：26邻域搜索（全空间）</li>
+                </ul>
+            </li>
+            <li><strong>特性</strong>：支持最大迭代次数、时间限制、启发函数调节</li>
+        </ul>
+
+        <h4>3. TrajOptimizer (traj_optimizer.h/cpp)</h4>
+        <ul>
+            <li><strong>功能</strong>：基于NLOpt的轨迹优化器</li>
+            <li><strong>优化目标</strong>：
+                <ul>
+                    <li>平滑性惩罚（加速度、Jerk）</li>
+                    <li>碰撞惩罚（安全距离约束）</li>
+                    <li>动态约束（速度、加速度限制）</li>
+                </ul>
+            </li>
+            <li><strong>输出</strong>：B样条曲线采样点</li>
+        </ul>
+
+        <h4>4. Planner (planner_utils.h/cpp)</h4>
+        <ul>
+            <li><strong>功能</strong>：核心规划逻辑协调器</li>
+            <li><strong>主要职责</strong>：
+                <ul>
+                    <li>规划状态机管理</li>
+                    <li>引导路径生成</li>
+                    <li>碰撞段检测与处理</li>
+                    <li>优化问题构造</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2 id="installation">安装指南</h2>
+
+        <h3>环境要求</h3>
+        <table>
+            <tr>
+                <th>依赖项</th>
+                <th>版本要求</th>
+            </tr>
+            <tr>
+                <td>ROS</td>
+                <td>Melodic / Noetic</td>
+            </tr>
+            <tr>
+                <td>Ubuntu</td>
+                <td>18.04 / 20.04</td>
+            </tr>
+            <tr>
+                <td>C++</td>
+                <td>11 或更高</td>
+            </tr>
+            <tr>
+                <td>CMake</td>
+                <td>3.0.2+</td>
+            </tr>
+        </table>
+
+        <h3>依赖库</h3>
+        <pre><code># ROS依赖
+sudo apt-get install ros-$ROS_DISTRO-octomap*
+sudo apt-get install ros-$ROS_DISTRO-pcl*
+sudo apt-get install ros-$ROS_DISTRO-tf
+
+# 系统依赖
+sudo apt-get install libnlopt-dev
+sudo apt-get install libceres-dev
+sudo apt-get install libeigen3-dev
+sudo apt-get install libpcl-dev</code></pre>
+
+        <h3>编译安装</h3>
+        <pre><code># 1. 进入工作空间
+cd ~/catkin_ws/src
+
+# 2. 克隆仓库
+git clone &lt;repository_url&gt; planner_manage
+
+# 3. 编译
+cd ~/catkin_ws
+catkin_make
+
+# 4. source 环境
+source devel/setup.bash</code></pre>
+
+        <h3>添加到.bashrc（可选）</h3>
+        <pre><code>echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc</code></pre>
+
+        <h2 id="quickstart">快速开始</h2>
+
+        <h3>1. 启动仿真环境</h3>
+        <p>确保已配置好无人机仿真环境（如Gazebo + PX4 / MAVROS）。</p>
+
+        <h3>2. 启动规划器</h3>
+        <pre><code>roslaunch planner_manage planner.launch</code></pre>
+
+        <h3>3. 设置目标点</h3>
+        <pre><code># 方式1：使用rostopic
+rostopic pub /goal geometry_msgs/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: 10.0, y: 5.0, z: 2.0}}}'
+
+# 方式2：使用RViz的2D Nav Goal工具
+# 订阅话题：/goal</code></pre>
+
+        <h3>4. 查看可视化结果</h3>
+        <p>打开RViz，添加以下显示项：</p>
+        <ul>
+            <li><code>/visualized_guidance_path</code> - 引导路径（黑色）</li>
+            <li><code>/visualized_planning_path</code> - 优化后路径（蓝色）</li>
+            <li><code>/visualized_astar_path</code> - A*搜索结果（红色）</li>
+            <li><code>/map_utils/octo_map</code> - 八叉树地图</li>
+        </ul>
+
+        <h2 id="parameters">参数配置</h2>
+
+        <h3>基本参数</h3>
+        <table>
+            <tr>
+                <th>参数名</th>
+                <th>类型</th>
+                <th>默认值</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td><code>test_mode</code></td>
+                <td>bool</td>
+                <td>false</td>
+                <td>测试模式开关</td>
+            </tr>
+            <tr>
+                <td><code>planner_freq</code></td>
+                <td>double</td>
+                <td>10.0</td>
+                <td>规划器运行频率(Hz)</td>
+            </tr>
+            <tr>
+                <td><code>plan_len</code></td>
+                <td>double</td>
+                <td>7.0</td>
+                <td>单次规划段长度(m)</td>
+            </tr>
+            <tr>
+                <td><code>reached_threshold</code></td>
+                <td>double</td>
+                <td>0.4</td>
+                <td>到达目标判断阈值(m)</td>
+            </tr>
+        </table>
+
+        <h3>A*搜索参数</h3>
+        <table>
+            <tr>
+                <th>参数名</th>
+                <th>类型</th>
+                <th>默认值</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td><code>astar_search_mode</code></td>
+                <td>int</td>
+                <td>2</td>
+                <td>搜索维度(2=2D, 3=3D)</td>
+            </tr>
+            <tr>
+                <td><code>astar_step_size</code></td>
+                <td>double</td>
+                <td>0.1</td>
+                <td>搜索步长(m)</td>
+            </tr>
+            <tr>
+                <td><code>astar_max_iter</code></td>
+                <td>int</td>
+                <td>5000</td>
+                <td>最大迭代次数</td>
+            </tr>
+            <tr>
+                <td><code>astar_max_time</code></td>
+                <td>double</td>
+                <td>0.2</td>
+                <td>最大搜索时间(s)</td>
+            </tr>
+            <tr>
+                <td><code>astar_hfunc_factor</code></td>
+                <td>double</td>
+                <td>10.0</td>
+                <td>启发函数缩放因子</td>
+            </tr>
+        </table>
+
+        <h3>优化器参数</h3>
+        <table>
+            <tr>
+                <th>参数名</th>
+                <th>类型</th>
+                <th>默认值</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td><code>dt</code></td>
+                <td>double</td>
+                <td>0.2</td>
+                <td>时间步长(s)</td>
+            </tr>
+            <tr>
+                <td><code>sf</code></td>
+                <td>double</td>
+                <td>0.8</td>
+                <td>安全距离(m)</td>
+            </tr>
+            <tr>
+                <td><code>lambda_s</code></td>
+                <td>double</td>
+                <td>1.0</td>
+                <td>平滑性权重</td>
+            </tr>
+            <tr>
+                <td><code>lambda_c</code></td>
+                <td>double</td>
+                <td>80.0</td>
+                <td>碰撞惩罚权重</td>
+            </tr>
+            <tr>
+                <td><code>lambda_d</code></td>
+                <td>double</td>
+                <td>2.0</td>
+                <td>动态约束权重</td>
+            </tr>
+            <tr>
+                <td><code>opt_xtol_rel</code></td>
+                <td>double</td>
+                <td>1e-6</td>
+                <td>优化容差</td>
+            </tr>
+            <tr>
+                <td><code>opt_maxeval</code></td>
+                <td>int</td>
+                <td>50</td>
+                <td>最大优化迭代次数</td>
+            </tr>
+        </table>
+
+        <h3>地图参数</h3>
+        <table>
+            <tr>
+                <th>参数名</th>
+                <th>类型</th>
+                <th>默认值</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td><code>map_resolution</code></td>
+                <td>double</td>
+                <td>0.1</td>
+                <td>地图分辨率(m)</td>
+            </tr>
+            <tr>
+                <td><code>map_z_min</code></td>
+                <td>double</td>
+                <td>0.1</td>
+                <td>地图Z轴最小值(m)</td>
+            </tr>
+            <tr>
+                <td><code>map_z_max</code></td>
+                <td>double</td>
+                <td>5.0</td>
+                <td>地图Z轴最大值(m)</td>
+            </tr>
+            <tr>
+                <td><code>map_r</code></td>
+                <td>double</td>
+                <td>20.0</td>
+                <td>地图有效半径(m)</td>
+            </tr>
+            <tr>
+                <td><code>pro_hit</code></td>
+                <td>double</td>
+                <td>0.7</td>
+                <td>命中概率更新值</td>
+            </tr>
+            <tr>
+                <td><code>pro_miss</code></td>
+                <td>double</td>
+                <td>0.4</td>
+                <td>未命中概率更新值</td>
+            </tr>
+        </table>
+
+        <h3>运动参数</h3>
+        <table>
+            <tr>
+                <th>参数名</th>
+                <th>类型</th>
+                <th>默认值</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td><code>max_v</code></td>
+                <td>double</td>
+                <td>2.5</td>
+                <td>最大速度(m/s)</td>
+            </tr>
+            <tr>
+                <td><code>average_v</code></td>
+                <td>double</td>
+                <td>1.0</td>
+                <td>平均速度(m/s)</td>
+            </tr>
+            <tr>
+                <td><code>replan_threshold_dist</code></td>
+                <td>double</td>
+                <td>3.5</td>
+                <td>重规划触发距离(m)</td>
+            </tr>
+        </table>
+
+        <h2 id="ros-interface">ROS接口</h2>
+
+        <h3>订阅话题 (Subscribers)</h3>
+        <table>
+            <tr>
+                <th>话题名</th>
+                <th>消息类型</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td><code>/iris_0/mavros/vision_pose/pose</code></td>
+                <td><code>geometry_msgs/PoseStamped</code></td>
+                <td>无人机当前位姿</td>
+            </tr>
+            <tr>
+                <td><code>/goal</code></td>
+                <td><code>geometry_msgs/PoseStamped</code></td>
+                <td>目标点设置</td>
+            </tr>
+            <tr>
+                <td><code>/points_stable_inflate</code></td>
+                <td><code>sensor_msgs/PointCloud2</code></td>
+                <td>点云地图数据</td>
+            </tr>
+        </table>
+
+        <h3>发布话题 (Publishers)</h3>
+        <table>
+            <tr>
+                <th>话题名</th>
+                <th>消息类型</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td><code>/mission_planning_path</code></td>
+                <td><code>geometry_msgs/PoseArray</code></td>
+                <td>规划路径（发送给控制器）</td>
+            </tr>
+            <tr>
+                <td><code>/visualized_planning_path</code></td>
+                <td><code>visualization_msgs/Marker</code></td>
+                <td>优化后路径可视化</td>
+            </tr>
+            <tr>
+                <td><code>/visualized_guidance_path</code></td>
+                <td><code>visualization_msgs/Marker</code></td>
+                <td>引导路径可视化</td>
+            </tr>
+            <tr>
+                <td><code>/visualized_astar_path</code></td>
+                <td><code>visualization_msgs/Marker</code></td>
+                <td>A*路径可视化</td>
+            </tr>
+            <tr>
+                <td><code>/map_utils/octo_map</code></td>
+                <td><code>octomap_msgs/Octomap</code></td>
+                <td>八叉树地图</td>
+            </tr>
+            <tr>
+                <td><code>/interpret_signal</code></td>
+                <td><code>std_msgs/Char</code></td>
+                <td>飞行中断信号</td>
+            </tr>
+            <tr>
+                <td><code>/emergency_hover_cmd</code></td>
+                <td><code>geometry_msgs/Twist</code></td>
+                <td>紧急悬停指令</td>
+            </tr>
+        </table>
+
+        <h2 id="visualization">可视化</h2>
+
+        <h3>RViz配置</h3>
+        <pre><code># 启动RViz
+rosrun rviz rviz
+
+# 添加显示项：
+# 1. Marker - /visualized_guidance_path (黑色引导路径)
+# 2. Marker - /visualized_planning_path (蓝色优化路径)
+# 3. Marker - /visualized_astar_path (红色A*路径)
+# 4. OctoMap - /map_utils/octo_map (占据地图)
+# 5. PoseArray - /mission_planning_path (任务点)</code></pre>
+
+        <h3>路径颜色说明</h3>
+        <table>
+            <tr>
+                <th>颜色</th>
+                <th>路径类型</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>黑色</td>
+                <td>引导路径</td>
+                <td>初始生成的粗略路径</td>
+            </tr>
+            <tr>
+                <td>红色</td>
+                <td>A*路径</td>
+                <td>碰撞段的绕行路径</td>
+            </tr>
+            <tr>
+                <td>蓝色</td>
+                <td>优化路径</td>
+                <td>最终平滑的B样条轨迹</td>
+            </tr>
+        </table>
+
+        <h2 id="performance">性能指标</h2>
+
+        <h3>规划性能</h3>
+        <table>
+            <tr>
+                <th>指标</th>
+                <th>典型值</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>规划频率</td>
+                <td>10 Hz</td>
+                <td>主循环运行频率</td>
+            </tr>
+            <tr>
+                <td>A*搜索时间</td>
+                <td>&lt; 200 ms</td>
+                <td>单次搜索最大时间限制</td>
+            </tr>
+            <tr>
+                <td>优化时间</td>
+                <td>&lt; 100 ms</td>
+                <td>典型优化求解时间</td>
+            </tr>
+            <tr>
+                <td>重规划延迟</td>
+                <td>&lt; 50 ms</td>
+                <td>从触发到输出路径</td>
+            </tr>
+        </table>
+
+        <h3>轨迹质量</h3>
+        <table>
+            <tr>
+                <th>指标</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>连续性</td>
+                <td>C2连续（位置、速度、加速度）</td>
+            </tr>
+            <tr>
+                <td>约束满足</td>
+                <td>速度、加速度、Jerk约束</td>
+            </tr>
+            <tr>
+                <td>安全距离</td>
+                <td>默认0.8m障碍物距离</td>
+            </tr>
+        </table>
+
+        <h2 id="faq">常见问题</h2>
+
+        <h3>Q1: 编译错误 - 找不到NLopt</h3>
+        <p><strong>解决方案：</strong></p>
+        <pre><code>sudo apt-get install libnlopt-dev
+# 如果仍有问题，检查CMakeLists.txt中的NLOPT_INCLUDE_DIR</code></pre>
+
+        <h3>Q2: A*搜索失败，返回空路径</h3>
+        <p><strong>可能原因：</strong></p>
+        <ul>
+            <li>起点或终点在障碍物内</li>
+            <li>搜索步长过大</li>
+            <li>最大迭代次数不足</li>
+        </ul>
+        <p><strong>解决方案：</strong></p>
+        <ul>
+            <li>减小 <code>astar_step_size</code></li>
+            <li>增加 <code>astar_max_iter</code></li>
+            <li>检查地图数据</li>
+        </ul>
+
+        <h3>Q3: 轨迹不平滑</h3>
+        <p><strong>解决方案：</strong></p>
+        <ul>
+            <li>增加 <code>lambda_s</code>（平滑性权重）</li>
+            <li>减小 <code>dt</code>（时间步长）</li>
+            <li>增加 <code>num_of_control_points</code></li>
+        </ul>
+
+        <h3>Q4: 规划器不接收目标点</h3>
+        <p><strong>检查项：</strong></p>
+        <ul>
+            <li>确认 <code>/goal</code> 话题有数据发布</li>
+            <li>检查 <code>set_goal_topic</code> 参数配置</li>
+            <li>查看ROS日志是否有错误信息</li>
+        </ul>
+
+        <hr>
+
+        <h2>开发计划</h2>
+        <ul>
+            <li>支持动态障碍物预测</li>
+            <li>添加多无人机协同规划</li>
+            <li>集成更高效的优化器（如MPC）</li>
+            <li>支持非结构化环境（如森林）</li>
+        </ul>
+
+        <h2>许可证</h2>
+        <p>本项目采用 MIT 许可证</p>
+
+        <h2>联系方式</h2>
+        <p>邮箱联系方式 : ChineseUserChen@163.com</p>
+        <p>联系地址 ：中国 陕西省西安市 西北工业大学 飞行器智能认知与控制国防科学技术重点实验室</p>
+
+        <h2></h2>
+        <p>本项目开发过程中使用了以下开源项目，详情点击了解</p>
+        <ul>
+            <li><a href="https://octomap.github.io/">OctoMap</a></li>
+            <li><a href="https://nlopt.readthedocs.io/">NLopt</a></li>
+            <li><a href="http://ceres-solver.org/">Ceres Solver</a></li>
+        </ul>
+    </div>
+</body>
+</html>
